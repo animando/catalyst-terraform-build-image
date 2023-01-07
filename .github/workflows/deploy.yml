@@ -2,8 +2,11 @@ name: deploy
 run-name: ${{ github.actor }} is deploying
 on: [push]
 jobs:
-  check-bats-version:
+  build-and-push-image:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -11,5 +14,10 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           role-to-assume: arn:aws:iam::726059925999:role/github-role
           aws-region: eu-west-1
+
+      - name: Check AWS Credentials
+        run: aws s3 ls
